@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <style>
+        * {
+            text-align: center;
+        }
+
+        #board {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #board tr td {
+            border: 1px solid white;
+            background: #34da79;
+            width: 16px;
+            height: 16px;
+            text-align: center;
+        }
+
+        #board tr td.clicked {
+            background: #6c5ee7;
+        }
+
+        #board tr td.mine {
+            background: #FF0000;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>지뢰를찾기</h1>
+    <table id=board>
+    </table>
+    <BUTTON onclick="genGrid();">다시</BUTTON>
+    <script>
+        let grid = document.getElementById("board");
+        genGrid();
+
+        function genGrid() {
+            grid.innerHTML = "";
+            for (let i = 0; i < 8; i++) {
+                row = grid.insertRow(i);
+                for (var j = 0; j < 8; j++) {
+                    cell = row.insertCell(j);
+                    cell.onclick = function () { clickBox(this); };
+                    var mine = document.createAttribute("mine");
+                    if (Math.random() < 0.3)
+                        mine.value = "true";
+                    else
+                        mine.value = "false";
+                    cell.setAttributeNode(mine);
+                }
+                
+            }
+        }
+
+        function clickBox(cell) {
+            if (cell.getAttribute("mine") == "true") {
+                cell.className = "mine"; 
+                alert("게임이 종료되었습니다.");
+            } else {
+                cell.className = "clicked";
+                let cnt = countMines(cell); //주변 지뢰수세기
+                if(cnt > 0) { //있으면
+                    cell.innerHTML = cnt; //숫자를 넣기
+                }
+            }
+        }
+
+        function countMines(cell) {
+            let row = cell.parentNode.rowIndex; //세로
+            let col = cell.cellIndex; //가로
+            let cnt = 0; //지뢰 수
+            //클릭한 블록 중심으로 3*3 에서 세기
+            for (let i = -1; i <= 1; i++) {
+                for (let j = -1; j <= 1; j++) {
+                    if (i === 0 && j === 0) continue; //눌른위치제외
+                    let r = row + i;
+                    let c = col + j;
+                    if (r >= 0 && r < 8 && c >= 0 && c < 8) { //있는건지 확인
+                        let check = grid.rows[r].cells[c];
+                        if (check.getAttribute("mine") == "true") {
+                            cnt++; // 주변에 지뢰찾으면 증가
+                        }
+                    }
+                }
+            }
+            return cnt; //숫자 반환
+        }
+    </script>
+</body>
+
+</html>
